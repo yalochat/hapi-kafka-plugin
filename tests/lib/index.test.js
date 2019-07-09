@@ -4,9 +4,12 @@ const KakfaClientPlugin = require('../../lib')
 
 let server = null
 
-beforeEach(() => {
-  server = new Hapi.Server()
-  server.connection()
+beforeEach(async () => {
+  server = Hapi.server({
+    host: 'localhost',
+  })
+
+  await server.start()
 })
 
 afterEach(() => {
@@ -14,22 +17,25 @@ afterEach(() => {
 })
 
 describe('hapi kafka client plugin', () => {
-  test('should be able to validate options and raise an error', (done) => {
-    server.register({
-      register: KakfaClientPlugin,
-      options: {
-        port: 'bad-port',
-      },
-    }).catch((err) => {
+  test('should be able to validate options and raise an error', async (done) => {
+    try {
+      await server.register({
+        plugin: KakfaClientPlugin,
+        options: {
+          port: 'bad-port',
+        },
+      })
+      done()
+    } catch (err) {
       expect(err).toBeInstanceOf(Error)
       expect(err.name).toBe('ValidationError')
       done()
-    })
+    }
   })
 
   test('should be able to  register a new producer', (done) => {
     server.register({
-      register: KakfaClientPlugin,
+      plugin: KakfaClientPlugin,
       options: {},
     }).then(() => {
       expect(server.plugins).toHaveProperty('kafka')

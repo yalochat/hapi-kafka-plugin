@@ -44,7 +44,7 @@ server.register({
   console.log('Kafka has been started')
 
   // And now is available in the server
-  server.plugins.kafka.producer(
+  server.plugins.kafka.producer.produce(
     'topic',
     null,
     Buffer.from('hello world'),
