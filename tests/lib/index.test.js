@@ -1,5 +1,6 @@
 const Hapi = require('hapi')
 const Kafka = require('node-rdkafka')
+const sinon = require('sinon')
 const KakfaClientPlugin = require('../../lib')
 
 let server = null
@@ -13,6 +14,7 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
+  // sinon.restore()
   server.stop()
 })
 
@@ -33,15 +35,31 @@ describe('hapi kafka client plugin', () => {
     }
   })
 
-  test('should be able to  register a new producer', (done) => {
-    server.register({
+  // TODO: validate that if we pass SASL auth we use SASL as security protocol
+  // test.only('should be able to register a new producer with SASL protocol', async () => {
+  //   const producer = sinon.spy(Kafka, 'Producer')
+  //   await server.register({
+  //     plugin: KakfaClientPlugin,
+  //     options: {
+  //       auth: 'SASL',
+  //       username: 'fake-username',
+  //       password: 'fake-password',
+  //     },
+  //   })
+
+  //   expect(producer.called).toEqual(true)
+  //   expect(server.plugins).toHaveProperty('kafka')
+  //   expect(server.plugins.kafka).toHaveProperty('producer')
+  //   expect(server.plugins.kafka.producer).toBeInstanceOf(Kafka.Producer)
+  // })
+
+  test('should be able to  register a new producer', async () => {
+    await server.register({
       plugin: KakfaClientPlugin,
       options: {},
-    }).then(() => {
-      expect(server.plugins).toHaveProperty('kafka')
-      expect(server.plugins.kafka).toHaveProperty('producer')
-      expect(server.plugins.kafka.producer).toBeInstanceOf(Kafka.Producer)
-      done()
     })
+    expect(server.plugins).toHaveProperty('kafka')
+    expect(server.plugins.kafka).toHaveProperty('producer')
+    expect(server.plugins.kafka.producer).toBeInstanceOf(Kafka.Producer)
   })
 })
