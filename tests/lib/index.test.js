@@ -1,6 +1,5 @@
 const Hapi = require('hapi')
 const Kafka = require('node-rdkafka')
-const sinon = require('sinon')
 const KakfaClientPlugin = require('../../lib')
 
 let server = null
