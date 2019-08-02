@@ -13,7 +13,6 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
-  // sinon.restore()
   server.stop()
 })
 
@@ -34,13 +33,33 @@ describe('hapi kafka client plugin', () => {
     }
   })
 
-  test('should be able to  register a new producer', async () => {
+  test('should be able to register a new producer using a broker list', async () => {
     await server.register({
       plugin: KakfaClientPlugin,
-      options: {},
+      options: {
+        brokerList: 'localhost:9092',
+      },
+    })
+
+    expect(server.plugins).toHaveProperty('kafka')
+    expect(server.plugins.kafka).toHaveProperty('producer')
+    expect(server.plugins.kafka.producer).toBeInstanceOf(Kafka.Producer)
+
+    server.plugins.kafka.producer.disconnect()
+  })
+
+  test('should be able to register a new producer using host and port', async () => {
+    await server.register({
+      plugin: KakfaClientPlugin,
+      options: {
+        host: 'localhost',
+        port: 9092,
+      },
     })
     expect(server.plugins).toHaveProperty('kafka')
     expect(server.plugins.kafka).toHaveProperty('producer')
     expect(server.plugins.kafka.producer).toBeInstanceOf(Kafka.Producer)
+
+    server.plugins.kafka.producer.disconnect()
   })
 })
